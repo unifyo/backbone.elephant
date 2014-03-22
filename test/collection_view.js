@@ -100,5 +100,21 @@
     view.remove();
     equal(_.keys(c1._listeningTo).length, 0);
   });
+  test("removing from the collection stops the children listening", 3, function() {
+    var c1 = view.childViews()[0];
+    c1.listenTo(view, "foo", "foo");
+    equal(_.keys(c1._listeningTo).length, 1);
+    collection.remove(collection.get(1));
+    equal(_.keys(c1._listeningTo).length, 0);
+    equal(c1.parentView, null)
+  });
+  test("viewFromModel is required", 1, function() {
+    throws(function() {
+      new Backbone.CollectionView({collection: collection});
+    });
+  });
+  test("viewFromModel can be customised", 1, function() {
+    ok(new Backbone.CollectionView({viewFromModel: function() {return ChildView;}, collection: collection}));
+  });
 })();
 
