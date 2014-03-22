@@ -20,7 +20,6 @@
           this.fooCount++;
         },
         render: function() {
-          console.log("Called");
           if (!this.rendered) {
             this.rendered = true;
             this.$el.html('<span class="foo">Foo</span>');
@@ -54,7 +53,6 @@
   test("remove calls stopListening on child views", 2, function() {
     view.render();
     view.c1.listenTo(view, "foo", "foo");
-    console.log(view.c1);
     equal(_.keys(view.c1._listeningTo).length, 1);
     view.remove();
     equal(_.keys(view.c1._listeningTo).length, 0);
@@ -75,27 +73,32 @@
     equal(view.c1.fooCount, 1);
   });
 
-  test("changeSubView works properly", 2, function() {
+  test("changeSubView works properly", 3, function() {
     view.render();
+    var oldC1 = view.c1;
     view.c1 = null;
     view.changeSubView(".subView1");
+    
+    equal(oldC1.parentView, null);
+    
     view.c2 = new ChildView({className: "c2"});
     view.changeSubView(".subView2");
     view.render();
+    
     equal(view.$el.html(), innerHTML2);
+    
     view.c2.$(".foo").click();
+    
     equal(view.c2.fooCount, 1);
   });
 
-  test("trigger('change:subview') works properly", 2, function() {
-    view.render();
-    view.c1 = null;
+  test("trigger('change:subview') works properly", 1, function() {
+    var ParentViewStubbed = ParentView.extend({
+      changeSubView: function(selector) {
+        equal(selector, ".subView1");
+      }
+    });
+    view = new ParentViewStubbed({});
     view.trigger("change:c1");
-    view.c2 = new ChildView({className: "c2"});
-    view.trigger("change:c2");
-    view.render();
-    equal(view.$el.html(), innerHTML2);
-    view.c2.$(".foo").click();
-    equal(view.c2.fooCount, 1);
   });
 })();
