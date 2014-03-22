@@ -42,7 +42,6 @@
    * Override Backbone.View#remove to clear the rendered flag.
    */
   Backbone.View.prototype.remove = function() {
-    // Since this is only called from Backbone.View#remove
     if(this.rendered) {
       this.rendered = false;
     }
@@ -140,7 +139,7 @@
       this.renderInner();
       
       _.each(this.subViewsBySelector, function(view, selector) {
-        this.$(selector).first().append(view.rendered ? view.el : view.render().el);
+        this.$(selector).first().append(view.render().el);
       }, this);
 
       this.rendered = true;
@@ -183,11 +182,8 @@
         this.rendered = false;
       }
       _.each(this.subViewsByIndex, function(view) {
-        if (renderNeeded) {
-          view.remove();
-        } else {
-          view.stopListening();
-        }
+        // No need to remove view since render will do that via empty if needed.
+        view.stopListening();
       }, this);
       this.subViewsByIndex = [];
       this.subViewsByModelCid = {};
@@ -218,7 +214,6 @@
           var referenceNode = this.subViewsByIndex[index + 1];
           this.el.insertBefore(el, referenceNode && referenceNode.el);
         }
-        view.delegateEvents();
       }
     },
 
@@ -241,9 +236,8 @@
         var view = this.subViewsByModelCid[this.collection.at(i).cid];
         this.subViewsByIndex[i] = view;
         if(this.rendered) {
-          var elNode = view.render().el;
+          var elNode = view.el;
           this.el.insertBefore(elNode, referenceNode);
-          view.delegateEvents();
           referenceNode = elNode;
         }
       }
