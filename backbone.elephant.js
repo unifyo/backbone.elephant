@@ -75,11 +75,15 @@
   };
 
   var SeaView = Backbone.SeaView = Backbone.View.extend({
-    /* subViews: {
-      ".subViewClass1" : "subView1"
-    },*/
+    /*
+     * // Define sub views like this.
+     * subViews: {
+     *   ".subViewClass1" : "subView1"
+     * }
+     */
 
     /*
+     * // Define this function instead of overriding render().
      * renderInner: function() {
      *   this.$el.html('<div class="subViewClass1"></div>');
      *   return this;
@@ -87,7 +91,8 @@
      */
 
     /*
-     * needsRepeatableRender: boolean
+     * // Set this to true if renderInner always does the same thing (e.g. a static template.)
+     * renderInnerIsConstant: boolean
      */
 
     constructor: function(options) {
@@ -126,11 +131,11 @@
 
     render: function() {
       if(this.rendered) {
-        if(!this.needsRepeatableRender) {
+        if(this.renderInnerIsConstant) {
           return this;
         }
         _.each(this.subViewsBySelector, function(view, selector) {
-          if (view.rendered) {
+          if (view) {
             view.$el.detach();
           }
         });
@@ -139,7 +144,9 @@
       this.renderInner();
       
       _.each(this.subViewsBySelector, function(view, selector) {
-        this.$(selector).first().append(view.render().el);
+        if (view) {
+          this.$(selector).first().append(view.render().el);
+        }
       }, this);
 
       this.rendered = true;

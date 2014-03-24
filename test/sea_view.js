@@ -58,19 +58,19 @@
     equal(_.keys(view.c1._listeningTo).length, 0);
   });
   
-  test("without needsRepeatableRender, render again does nothing", 0, function() {
-    view.render();
-    view.renderInner = function() {ok(false)};
-    view.render();
-  });
-
-  test("with needsRepeatableRender, child views are detached so events still work", 2, function() {
-    view.needsRepeatableRender = true;
+  test("without renderInnerIsConstant, child views are detached so events still work", 2, function() {
     view.render();
     view.render();
     equal(view.$el.html(), innerHTML);
     view.c1.$(".foo").click();
     equal(view.c1.fooCount, 1);
+  });
+
+  test("with renderInnerIsConstant, render again does nothing", 0, function() {
+    view.renderInnerIsConstant = true;
+    view.render();
+    view.renderInner = function() {ok(false)};
+    view.render();
   });
 
   test("changeSubView works properly", 3, function() {
